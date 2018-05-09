@@ -74,12 +74,7 @@ while True:
 	# While connection is still established
 	# Listen for commands
 
-	while clientSock:
-
-	
-
-
-
+while clientSock:
 	# The buffer to all data received from the
 	# the client.
 	fileData = ""
