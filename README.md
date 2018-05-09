@@ -38,7 +38,7 @@ NEED TO MAKE:
 	- uploads file to server
 3. LS Command
 	- lists files on the server
-4. LLS command
-	- lists files on the client
+4. *DONE* LLS command 
+	- lists files on the client 
 5. QUIT Command
 	- disconnects from server and exits

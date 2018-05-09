@@ -7,6 +7,7 @@
 import socket
 import os
 import sys
+import commands
 
 
 # Command line checks 
@@ -72,10 +73,16 @@ while not quit:
 
 
     elif cmd == 'ls':
-        print "this will list files on the server"
+        # need to send the following code to server and return output:
+        #         for line in commands.getstatusoutput('ls -l'):
+	    #            print line
+        
+        print "this should run the ls"
+
 
     elif cmd == 'lls':
-        print "this will list files on the client"
+        for line in commands.getstatusoutput('ls -l'):
+            print line
 
     elif cmd == 'quit':
         quit = True

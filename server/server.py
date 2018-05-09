@@ -18,6 +18,12 @@ welcomeSock.bind(('', listenPort))
 # Start listening on the socket
 welcomeSock.listen(1)
 
+
+
+
+
+
+
 # ************************************************
 # Receives the specified number of bytes
 # from the specified socket
@@ -48,6 +54,9 @@ def recvAll(sock, numBytes):
 	
 	return recvBuff
 		
+
+
+
 # Accept connections forever
 while True:
 	
@@ -56,10 +65,21 @@ while True:
 	# Accept connections
 	clientSock, addr = welcomeSock.accept()
 	
-	print "User connected with \n IP: ", addr, "Port: ", clientSock
+	print "User connected with \n IP and PORT: ", addr
 	
 	print "\n"
 	
+
+
+	# While connection is still established
+	# Listen for commands
+
+	while clientSock:
+
+	
+
+
+
 	# The buffer to all data received from the
 	# the client.
 	fileData = ""
