@@ -56,7 +56,8 @@ while True:
 	# Accept connections
 	clientSock, addr = welcomeSock.accept()
 	
-	print "Accepted connection from client: ", addr
+	print "User connected with \n IP: ", addr, "Port: ", clientSock
+	
 	print "\n"
 	
 	# The buffer to all data received from the
