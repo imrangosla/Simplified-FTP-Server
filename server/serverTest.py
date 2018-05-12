@@ -1,7 +1,8 @@
 import socket
+import os
 
 # The port on which to listen
-listenPort = 1234
+listenPort = 1233
 
 # Create a welcome socket. 
 welcomeSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,28 +13,8 @@ welcomeSock.bind(('', listenPort))
 # Start listening on the socket
 welcomeSock.listen(1)
 
-def recvAll(sock, numBytes):
-
-	# The buffer
-	recvBuff = ""
-	
-	# The temporary buffer
-	tmpBuff = ""
-	
-	# Keep receiving till all is received
-	while len(recvBuff) < numBytes:
-		
-		# Attempt to receive bytes
-		tmpBuff =  sock.recv(numBytes)
-		
-		# The other side has closed the socket
-		if not tmpBuff:
-			break
-		
-		# Add the received bytes to the buffer
-		recvBuff += tmpBuff
-	
-	return recvBuff
+# Port we send data
+dataPort = 1337
 
 
 # Accept connections forever
@@ -50,15 +31,34 @@ while True:
 	# Listen for commands
 	try:
 		while connection:
+			print 'waiting for command'
 			cmd = connection.recv(1024)
 			print 'command received: <{}>'.format(cmd)
 			cmd_list = cmd.split()
 
+			# Client sent too many args
 			if len(cmd_list) > 2:
 				connection.send('Invalid command syntax :(')
 				
+			# Client wants a file
 			if cmd_list[0] == 'get':
-				print 'hello asshole this is an indented block'
+				# Connect to client's socket
+				dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				dataSock.connect((addr[0], dataPort))
+
+				# Check if file exists first
+				if os.path.isfile(cmd_list[1]):
+					data = open(cmd_list[1], 'r')
+					data = data.read()
+					dataSock.sendall(data)
+					print 'Data sent\n'
+				else:
+					print 'File doesn\'t exist'
+					dataSock.sendall("")
+
+				# Cleaning up
+				dataSock.close()
+				
      	        # send file cmd_list[1] to client
 
      		if cmd_list[0] == 'put':
@@ -71,5 +71,7 @@ while True:
     		if cmd_list[0] == 'ls':
 				pass
     	        # run ls on server and return output to client
+	except IndexError:
+		print 'I think our client dropped.'
 	finally:
 		connection.close()
