@@ -7,7 +7,7 @@ import commands
 serverAddr = "localhost"
 
 # Server port
-serverPort = 1233
+serverPort = 1234
 
 # Create a TCP socket
 connSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,8 +16,6 @@ connSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print "Connecting..."
 connSock.connect((serverAddr, serverPort))
 
-# Port we send data
-dataPort = 1337
 socket.setdefaulttimeout(3)
 
 
@@ -27,7 +25,7 @@ while active:
     # set format for program
     cmd = raw_input("\nftp> ")
     input_list = cmd.split()
-    
+    print len(input_list)
     if len(input_list) == 2:
 
         if input_list[0] == 'get':
@@ -36,9 +34,9 @@ while active:
 
             # Set up listening socket
             inSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            inSock.bind(('', dataPort))
+            inSock.bind(('', 0))
             # Let server know what you want
-            connSock.sendall('get %s' % input_list[1])
+            connSock.sendall('get %s %d' % (input_list[1], inSock.getsockname()[1]))
             # Listen for server's connection
             inSock.listen(1)
             connection, _ = inSock.accept()
@@ -59,6 +57,7 @@ while active:
 
         elif input_list[0] == 'put':
             # send 'put' to the server
+            connSock.sendall('put %s' % input_list[1])
             print "Send Put"
         
         else:

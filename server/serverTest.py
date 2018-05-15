@@ -2,7 +2,7 @@ import socket
 import os
 
 # The port on which to listen
-listenPort = 1233
+listenPort = 1234
 
 # Create a welcome socket. 
 welcomeSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,9 +12,6 @@ welcomeSock.bind(('', listenPort))
 
 # Start listening on the socket
 welcomeSock.listen(1)
-
-# Port we send data
-dataPort = 1337
 
 
 # Accept connections forever
@@ -37,14 +34,14 @@ while True:
 			cmd_list = cmd.split()
 
 			# Client sent too many args
-			if len(cmd_list) > 2:
+			if len(cmd_list) > 3:
 				connection.send('Invalid command syntax :(')
 				
 			# Client wants a file
 			if cmd_list[0] == 'get':
 				# Connect to client's socket
 				dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-				dataSock.connect((addr[0], dataPort))
+				dataSock.connect((addr[0], int(cmd_list[2])))
 
 				# Check if file exists first
 				if os.path.isfile(cmd_list[1]):
@@ -59,13 +56,11 @@ while True:
 				# Cleaning up
 				dataSock.close()
 				
-     	        # send file cmd_list[1] to client
-
-     		if cmd_list[0] == 'put':
+			if cmd_list[0] == 'put':
 				filename = cmd_list[1]
 				print 'trying to put a file named {}'.format(filename)
 				ephemeral_port = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-				ephemeral_port.bind((''), 0)
+				ephemeral_port.bind(('', 0))
 				print 'new ephemeral port created on {}'.format(ephemeral_port.getsockname()[1])
 
     		if cmd_list[0] == 'ls':
