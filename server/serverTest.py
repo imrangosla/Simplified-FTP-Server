@@ -1,14 +1,29 @@
 import socket
+import commands
 import os
+import argparse
 
-# The port on which to listen
-listenPort = 1234
+# Use arguments parser to setup args
+parser = argparse.ArgumentParser(description="Simplified-FTP-Server")
+parser.add_argument("port",  help="Port #")
 
-# Create a welcome socket. 
+args = parser.parse_args()
+listenPort = args.port
+
+
+# port validation
+if listenPort.isdigit():
+    listenPort = int(listenPort)
+else:
+    print("ERROR: {} is not a valid port \n[Defaulting to port 1234]".format(listenPort))
+    listenPort = 1234
+
+
+# socket initiation
 welcomeSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Bind the socket to the port
 welcomeSock.bind(('', listenPort))
+print "Socket started..."
+
 
 # Start listening on the socket
 welcomeSock.listen(1)
@@ -57,15 +72,51 @@ while True:
 				dataSock.close()
 				
 			if cmd_list[0] == 'put':
-				filename = cmd_list[1]
-				print 'trying to put a file named {}'.format(filename)
-				ephemeral_port = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-				ephemeral_port.bind(('', 0))
-				print 'new ephemeral port created on {}'.format(ephemeral_port.getsockname()[1])
+				# Connect to client's socket
+				dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				dataSock.connect((addr[0], int(cmd_list[2])))
+
+				# Create a space to receive data
+				print "Contacting server..."
+				rcvd_data = connection.makefile()
+				data = rcvd_data.read()
+				print "*Received Data*"
+
+				# Cleaning connections
+				print "[Closing data connections]"
+				dataSock.close()
+				rcvd_data.close()
+				
+				# Make sure the file was there before writing to disk
+				if data:
+					outFile = open(cmd_list[1], 'w')
+					outFile.write(data)
+					outFile.close()
+					print "SUCCESS"
+				else:
+					print 'File doesn\'t exist'
+
+
 
     		if cmd_list[0] == 'ls':
-				pass
-    	        # run ls on server and return output to client
+				# The LS command for server's files, saved to a string.
+				sendingString = ""
+
+				# print sendingString
+				for i in commands.getstatusoutput('ls -l'):
+					sendingString += str(i)
+
+				# Connect to client's socket
+				dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				dataSock.connect((addr[0], int(cmd_list[1])))
+
+				# Send the string
+				dataSock.sendall(sendingString)
+
+				# Close socket
+				dataSock.close()
+			
+			
 	except IndexError:
 		print 'I think our client dropped.'
 	finally:
