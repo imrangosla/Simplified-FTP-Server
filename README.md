@@ -1,19 +1,18 @@
 # Simplified-FTP-Server
-Simplified-FTP-Server
 
-##Programming Language:
+## Programming Language:
 PYTHON 2.7
 
-##How to execute the program:
+## How to execute the program:
 
-###To initiate the FTP Server: 
+### To initiate the FTP Server: 
 python serv.py <PORT NUMBER>
 
-###To run the FTP client: 
+### To run the FTP client: 
 python cli.py <server machine> <server port>
 
 
-####Upon connecting to the server, the client prints out ftp>. Here the user can enter the following commands:
+#### Upon connecting to the server, the client prints out ftp>. Here the user can enter the following commands:
 
 1. ftp> get <file name> (downloads ﬁle <ﬁle name> from the server) 
 2. ftp> put <filename> (uploads ﬁle <ﬁle name> to the server)
