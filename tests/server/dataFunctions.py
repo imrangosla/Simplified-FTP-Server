@@ -26,7 +26,10 @@ def recvAll(socket, dataSize):
 
     # check if all data is received
     while len(recvBuffer) < dataSize:
-        tempBuffer = socket.recv(dataSize)
+        try:
+            tempBuffer = socket.recv(dataSize - len(recvBuffer))
+        except Exception as e:
+            print "We got an exception: {}".format(e)
 
         # if reciever/sender closes socket
         if not tempBuffer:
@@ -51,8 +54,8 @@ def recv(socket):
         fileSize = int(fileSizeBuffer)
         data = recvAll(socket, fileSize)
 
-    except:
-        pass
+    except Exception as e:
+        print e
         
     return data
 

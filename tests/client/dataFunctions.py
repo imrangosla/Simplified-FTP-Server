@@ -26,10 +26,13 @@ def sendCommand(sock, data):
     # set a header of 10 bytes with the size of data
     # this is to ensure no data is lost when sending
     data = data[0] + " " + data[1]
+    print 'Sending: {}'.format(data)
     dataSize = str(len(data))
 
     while len(dataSize) < 10:
         dataSize = "0" + dataSize
+    
+    print "Sent size"
     
     data = dataSize + data
     dataSent = 0
@@ -37,6 +40,7 @@ def sendCommand(sock, data):
     # check if all data is sent
     while dataSent != len(data):
         dataSent += sock.send(data[dataSent])
+    print "All sent"
 
 
 
@@ -47,7 +51,10 @@ def recvAll(sock, dataSize):
 
     # check if all data is received
     while len(recvBuffer) < dataSize:
-        tempBuffer = sock.recv(dataSize)
+        try:
+            tempBuffer = sock.recv(dataSize - len(recvBuffer))
+        except Exception as e:
+            print e
 
         # if reciever/sender closes sock
         if not tempBuffer:

@@ -43,6 +43,7 @@ while active:
 
     # split input into array based off of space delimiter
     input_list = cmd.split()
+    print input_list
 
     # if input list exactly two strings (i.e. get image.png, put image.png)
     if len(input_list) == 2:
