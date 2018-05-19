@@ -43,7 +43,6 @@ while active:
 
     # split input into array based off of space delimiter
     input_list = cmd.split()
-    print input_list
 
     # if input list exactly two strings (i.e. get image.png, put image.png)
     if len(input_list) == 2:
@@ -52,7 +51,6 @@ while active:
         fileName = input_list[1]
 
         if input_list[0] == 'get':
-            print "send get"
             sendCommand(connSock, input_list)
             tempPort = int(recv(connSock))
             print "Connecting to servers ephemeral port on: " + str(tempPort)
@@ -63,14 +61,14 @@ while active:
                 data = recv(dataSock)
                 dataSock.close()
                 if data:
-                    outFile = open(input_list[1], 'w')
+                    outFile = open(fileName, 'w')
                     outFile.write(data)
                     outFile.close()
                     print "SUCCESS"
-                    print "Received: {} ({} bytes)".format(input_list[1], len(data))
+                    print "Received: {} ({} bytes)".format(fileName, len(data))
                 else:
                     print "FAILURE"
-                    print "File doesn't existon server"
+                    print "File doesn't exist on server"
                 
             except Exception as e:
                 print "FAILURE"
@@ -79,45 +77,54 @@ while active:
 
         elif input_list[0] == 'put':
             # send 'put' and fileName to the server
-            sendData(connSock, input_list)
+            sendCommand(connSock, input_list)
             tempPort = int(recv(connSock))
+            print "Connecting to servers ephemeral port on: " + str(tempPort)
+
             try:
                 dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 dataSock.connect((serverAddr, tempPort))
-                sendData(dataSock, fileName)
+                print "Connected"
+                if os.path.isfile(fileName):
+                    data = open(fileName, 'r')
+                    data = data.read()
+                    sendData(dataSock, data)
+                    print "Sent: {} ({} bytes)".format(fileName, len(data))
+                    dataSock.close()
+                else:
+                    print "File doesn\'t exist"
+                    sendData(dataSock, "")
+                    dataSock.close()
+                
+            except Exception as e:
+                print "FAILURE"
+                print e
 
-                print "Uploading File to Server..."
-                uploading = True
-
-                while uploading:
-                    try:
-                        file = open(filename, "r")
-                    except:
-                        print "ERROR: [File can't be opened]"
-
-                    try:
-                        numBytes = 0
-                        byte = file.read(1)
-                        while byte != "":
-                            pass
-                    except Exception as identifier:
-                        pass
-            except:
-                print "asdf"
-        
-        # if first word in list that is more than two strings is not put or get
-        else:
-            print "asdf"
 
     if len(input_list) == 1:
 
         if input_list[0] == 'lls':
-            print "Files on client are:"
+            print "------------ CLIENT FILES ------------"
             for line in commands.getstatusoutput('ls -l'):
                 print line
 
         elif input_list[0] == 'ls':
-            print "Files on server are: \n"
+            sendData(connSock, "ls")
+            tempPort = int(recv(connSock))
+            print "Connecting to servers ephemeral port on: " + str(tempPort)
+
+            try:
+                dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                dataSock.connect((serverAddr, tempPort))
+                print "Connected"
+                data = recv(dataSock)
+                print "------------ SERVER FILES ------------"
+                print data
+                dataSock.close()
+
+            except Exception as e:
+                print "FAILURE"
+                print e
 
         elif input_list[0] == 'quit':
             active = False

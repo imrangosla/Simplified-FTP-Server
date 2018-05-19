@@ -31,8 +31,7 @@ def sendCommand(sock, data):
 
     while len(dataSize) < 10:
         dataSize = "0" + dataSize
-    
-    print "Sent size"
+
     
     data = dataSize + data
     dataSent = 0
@@ -40,7 +39,6 @@ def sendCommand(sock, data):
     # check if all data is sent
     while dataSent != len(data):
         dataSent += sock.send(data[dataSent])
-    print "All sent"
 
 
 

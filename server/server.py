@@ -58,6 +58,9 @@ while True:
 					connection.send('Invalid command syntax :(')
 
 				if len(cmd_list) == 2:
+
+					fileName = cmd_list[1]
+
 					if cmd_list[0] == 'get':
 						print "Getting: " + cmd_list[1]
 						ephem = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -76,12 +79,44 @@ while True:
 						ephem.close()
 						ephemConn.close()
 
+
 					elif cmd_list[0] == 'put':
-						print "put"
+						print "Client wants to upload: " + cmd_list[1]
+						ephem = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+						ephem.bind(("",0))
+						sendData(connection, str(ephem.getsockname()[1]))
+						ephem.listen(1)
+						ephemConn, err = ephem.accept()
+						data = recv(ephemConn)
+						if data:
+							outFile = open(fileName, 'w')
+							outFile.write(data)
+							outFile.close()
+							print "SUCCESS"
+							print "Received: {} ({} bytes)".format(fileName, len(data))
+						else:
+							print "FAILURE"
+						ephem.close()
+						ephemConn.close()
 					
 				if len(cmd_list) == 1:
 					if cmd_list[0] == 'ls':
-						print "ls"
+						# The LS command for server's files, saved to a string.
+						lsOutput = ""
+
+						for i in commands.getstatusoutput('ls -l'):
+							lsOutput += str(i)
+
+						ephem = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+						ephem.bind(("",0))
+						sendData(connection, str(ephem.getsockname()[1]))
+						ephem.listen(1)
+						ephemConn, err = ephem.accept()
+
+						sendData(ephemConn, lsOutput)
+						ephem.close()
+						ephemConn.close()
+
 			else:
 				break
 
