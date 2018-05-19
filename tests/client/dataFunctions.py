@@ -9,7 +9,28 @@ def sendData(sock, data):
 
     while len(dataSize) < 10:
         dataSize = "0" + dataSize
+    
+    print type(data)
+    print type(dataSize)
 
+    data = dataSize + data
+    dataSent = 0
+
+    # check if all data is sent
+    while dataSent != len(data):
+        dataSent += sock.send(data[dataSent])
+
+# function to send both size of data and data
+def sendCommand(sock, data):
+
+    # set a header of 10 bytes with the size of data
+    # this is to ensure no data is lost when sending
+    data = data[0] + " " + data[1]
+    dataSize = str(len(data))
+
+    while len(dataSize) < 10:
+        dataSize = "0" + dataSize
+    
     data = dataSize + data
     dataSent = 0
 
@@ -46,6 +67,8 @@ def recv(sock):
     
     #create a buffer for the header size
     fileSizeBuffer = recvAll(sock, 10)
+    if int(fileSizeBuffer) == 0:
+        return None
 
     try:
         fileSize = int(fileSizeBuffer)

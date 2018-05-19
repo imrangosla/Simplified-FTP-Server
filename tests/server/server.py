@@ -36,7 +36,6 @@ welcomeSock.listen(1)
 while True:
 	print "Waiting for connections..."
 
-
 	# Accept connections
 	connection, addr = welcomeSock.accept()
 	print '{}{}{}'.format("User with IP: ", addr, " connected")
@@ -47,7 +46,8 @@ while True:
 	try:
 		while connection:
 			print 'Waiting for command...'
-			cmd = connection.recv(1024)
+			# cmd = connection.recv(1024)
+			cmd = recv(connection)
 			if cmd:
 				print 'command received: <{}>'.format(cmd)
 				cmd_list = cmd.split()
@@ -58,7 +58,23 @@ while True:
 
 				if len(cmd_list) == 2:
 					if cmd_list[0] == 'get':
-						print "get"
+						print "Getting: " + cmd_list[1]
+						ephem = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+						ephem.bind(("",0))
+						sendData(connection, str(ephem.getsockname()[1]))
+						ephem.listen(1)
+						ephemConn, err = ephem.accept()
+						if os.path.isfile(cmd_list[1]):
+							data = open(cmd_list[1], 'r')
+							data = data.read()
+							sendData(ephemConn, data)
+							print 'Data sent\n'
+						else:
+							print 'File doesn\'t exist'
+							sendData(ephemConn, "")
+						ephem.close()
+						ephemConn.close()
+
 					elif cmd_list[0] == 'put':
 						print "put"
 					
